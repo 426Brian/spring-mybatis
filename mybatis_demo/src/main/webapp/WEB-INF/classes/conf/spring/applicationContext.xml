@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://mybatis.org/schema/mybatis-spring
+       http://mybatis.org/schema/mybatis-spring.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 管理所有的业务逻辑组件 -->
+    <context:component-scan base-package="com.*.service.impl, com.jdbcTemplate.service.impl" use-default-filters="true">
+        <!-- 扫描控制器以外的标签 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!-- 引入外部配置文件 连接数据库的配置文件 -->
+    <context:property-placeholder location="classpath:conf/db/jdbc.properties"/>
+
+    <!-- 用来控制业务逻辑 数据源、事务控制、aop -->
+    <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+
+    </bean>
+
+    <!-- 管理事务 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"/>
+    </bean>
+    <bean id="transactionTemplate"
+          class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"></property>
+    </bean>
+
+
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="datasource"/>
+    </bean>
+
+    <!-- 整合mybatis
+        目的： 1. spring 管理所有组件，mapper的实现类，
+                service 层 @Autowired: 自动注入mapper
+              2. spring 管理事务, spring 声明式事务-->
+
+    <!-- 创建出SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--数据库-->
+        <property name="dataSource" ref="datasource"/>
+        <!-- mybatis配置文件位置 -->
+        <!--<property name="configLocation" value="classpath:conf/mybatis/conf/mybatis-conf.xml"/>-->
+        <!-- mapper.xml 文件位置 -->
+        <property name="mapperLocations" value="classpath:conf/mybatis/impl/*.xml"/>
+
+    </bean>
+
+    <!--配置一个可以进行批量执行的sqlSession-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <constructor-arg name="executorType" value="BATCH"/>
+    </bean>
+
+
+    <!-- 扫描所有mapper 接口的实现，让这些mapper 能够自动注入 -->
+    <mybatis-spring:scan base-package="com.mybatis.dao"/>
+
+    <!--MVC 注解驱动-->
+    <mvc:annotation-driven/>
+    <mvc:default-servlet-handler/>
+
+    <!--JSTL国际化解析类配置-->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="conf.language.abc"/>
+    </bean>
+
+    <!--自定义bean的初始化后置处理器-->
+    <!--<bean id="myBeanPostProcess" class="com.mvc.ioc.MyBeanPostProcess"></bean>-->
+
+    <!-- 用来自动生成所有被Aspect 标注修饰的类生成代理对象 -->
+    <aop:aspectj-autoproxy/>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="testmethod" propagation="REQUIRED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="transaction" expression="execution(* com.*.service.Impl.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="transaction"/>
+    </aop:config>
+
+</beans>

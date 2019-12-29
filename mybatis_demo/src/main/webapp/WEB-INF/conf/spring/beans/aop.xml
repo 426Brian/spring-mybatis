@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 被切面代理的 bean -->
+    <bean id="computer3" class="com.springAOP.service.impl.ComputerImpl3">
+
+    </bean>
+
+    <!--配置切面 bean-->
+    <bean id="aspectXml" class="com.springAOP.AspectXml">
+    </bean>
+
+    <bean id="aspectXml2" class="com.springAOP.AspectXml2">
+    </bean>
+
+    <!--配置AOP-->
+    <aop:config>
+        <!--切点-->
+        <aop:pointcut id="pointCut"  expression="execution(public int com.springAOP.service.impl.ComputerImpl3.*(..))"/>
+
+        <!--切面-->
+        <aop:aspect ref="aspectXml" order="1" id="aspect1">
+            <aop:around method="around" pointcut-ref="pointCut"></aop:around>
+        </aop:aspect>
+        <aop:aspect ref="aspectXml2" order="2" id="aspect2">
+            <aop:before method="validateArgs" pointcut-ref="pointCut"></aop:before>
+        </aop:aspect>
+
+
+    </aop:config>
+</beans>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 扫描 controller 注解的组件 -->
+    <context:component-scan base-package="com.mvc.controller" use-default-filters="true">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!-- MVC 注解驱动 -->
+    <mvc:annotation-driven/>
+
+    <!--  spring 默认认为静态资源也需要dispatcherServlet 处理，
+     这样会出错，如下标签处理这个问题  -->
+    <mvc:default-servlet-handler/>
+
+    <!--  试图解析器: 将逻辑视图(LoginController 方法中return 的字符串)
+      定位解析成物理视图(具体的html/jsp 等页面端文件) -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--  配置自定义的视图解析器 order值越小优先级越高, InternalResourceViewResolver 默认的order = Integer.MAX_VALUE
+        -->
+     <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+         <property name="order" value="1"/>
+     </bean>
+
+    <!--  JSTL国际化解析类配置 -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="conf.language.abc"/>
+    </bean>
+
+    <!-- 单独为某个JSP 设置请求映射 如果web应用启动后根映射是：localhost:8080/sprWeb 不需要经由自己写的控制器，
+      直接localhost:8080/sprWeb/testGlobal 就可以访问到international.jsp,  确保name路径下international.jsp 必须存在
+      缺点： 这种配置会导致控制器中的相关映射发生错误
+      用 <mvc:annotation-driven/> 这个标签能解决这种问题 -->
+    <mvc:view-controller path="/testGlobal" view-name="mvc/international"></mvc:view-controller>
+
+    <!-- 跟自定义的视图配合，将自定义的视图映射到path 路径下访问 -->
+    <!--<mvc:view-controller path="/myviewparser" view-name="myViewParser"></mvc:view-controller>-->
+
+
+    <!-- 配置拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor >
+            <!-- 如果去掉<mvc:mapping/> 会拦截所有请求-->
+            <mvc:mapping path="/testInterceptor"/>
+            <bean id="myInterceptor" class="com.mvc.intercept.MyInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+
+    <!--  自定义类型转换器 -->
+    <mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="com.mvc.convert.StringToUserConverter">
+                </bean>
+            </set>
+        </property>
+    </bean>
+</beans>
+

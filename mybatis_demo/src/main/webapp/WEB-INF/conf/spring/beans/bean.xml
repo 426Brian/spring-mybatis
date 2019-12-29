@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+<context:component-scan base-package="com.springAOP">
+
+</context:component-scan>
+    <mvc:annotation-driven/>
+
+    <bean id="user2" class="com.mvc.pojo.User" p:name="Jack"/>
+    <bean id="user" class="com.mvc.pojo.User">
+        <property name="name" value="Tom"/>
+        <property name="address" ref="address"/>
+        <property name="maps">
+            <map>
+                <entry key="1" value="1"></entry>
+                <entry key="2" value="2"></entry>
+                <entry key="3" value="3"></entry>
+            </map>
+        </property>
+    </bean>
+    <bean id="address" class="com.mvc.pojo.Address" init-method="startAddress" destroy-method="endAddress">
+        <property name="city" value="Seattle"/>
+        <property name="street" value="prosperity"/>
+
+    </bean>
+
+    <!-- 外置bean 的list 属于公共的bean 的列表，供其他bean使用 -->
+    <util:list id="commList">
+        <bean id="address2" class="com.mvc.pojo.User"></bean>
+        <bean id="address3" class="com.mvc.pojo.User"></bean>
+    </util:list>
+
+    <!--自定义bean的初始化后置处理器-->
+    <!--<bean id="myBeanPostProcess" class="com.mvc.ioc.MyBeanPostProcess"/>-->
+
+    <!-- 用来自动生成所有被Aspect 标注修饰的类生成代理对象 -->
+    <aop:aspectj-autoproxy/>
+
+</beans>

@@ -1,0 +1,19 @@
+#
+#Fri May 17 13:39:14 CST 2019
+com.transaction.service.impl.BookShopServiceImpl=org.springframework.stereotype.Component
+com.mybatis.service.EmployeeService=org.springframework.stereotype.Component
+com.jdbcTemplate.service.impl.AccountServiceImpl=org.springframework.stereotype.Component
+com.mybatis.controller.EmpController=org.springframework.stereotype.Component
+com.springAOP.ComputerAspect=org.springframework.stereotype.Component
+com.springAOP.service.impl.ComputerImpl2=org.springframework.stereotype.Component
+com.mvcdemo.controller.CourseController=org.springframework.stereotype.Component
+com.mvcdemo.service.impl.CourseServiceImpl=org.springframework.stereotype.Component
+com.springIoc.service.impl.BeanServiceImplOne=org.springframework.stereotype.Component
+com.mvc.controller.HelloController=org.springframework.stereotype.Component
+com.transaction.service.impl.BookShopDaompl=org.springframework.stereotype.Component
+com.springAOP.ValidateAspect=org.springframework.stereotype.Component
+com.springIoc.test.BeanServiceTest=org.springframework.stereotype.Component
+com.springIoc.service.impl.BeanServiceImplTwo=org.springframework.stereotype.Component
+com.mvc.viewParser.MyViewParser=org.springframework.stereotype.Component
+com.transaction.service.impl.CashierImpl=org.springframework.stereotype.Component
+com.jdbcTemplate.dataSource.Test=org.springframework.stereotype.Component
